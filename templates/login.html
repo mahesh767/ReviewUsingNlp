@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Login</title>
+    <style type="text/css">
+        .loadmodel
+        {
+            margin: auto;
+            border: 3px solid black;
+            width: 80%;
+        }
+        #emaillabel
+        {
+            font-size: 20px;
+            font-family: sans-serif;
+            display: block;
+            padding: 8px;
+        }
+       
+        h1
+        {
+            text-align: center;
+            padding: 8px;
+        }
+       #passwordlabel
+        {
+            font-size: 20px;
+            font-family: sans-serif;
+            display: block;
+            padding: 8px;
+
+        }
+        input[type="email"]
+        {
+            padding: 8px;
+            width: 80%;
+            padding: 10px;
+            margin: 8px;
+        }
+        input[type="password"]
+        {
+            padding: 8px;
+            width: 80%;
+            padding: 10px;
+            margin: 8px;
+        }
+        input[type="submit"]
+        {
+            padding: 8px;
+            background: black;
+            color: white;
+            margin: 8px;
+        }
+
+       
+
+
+    </style>
+</head>
+<body>
+<div class="loadmodel">
+    <h1>Login</h1>
+    <label id="emaillabel">Email</label>
+    <input type="email" id="email">
+    <label id="passwordlabel">password</label>
+    <input type="password" id="password">
+    <br>
+    <input type="submit" value="submit" onclick="login()">
+</div>
+</body>
+<script type="text/javascript">
+    function login()
+    {
+        var email=document.getElementById("email").value;
+        var password=document.getElementById("password").value;
+        //alert(email+""+password);
+        xmlhttprequest=new XMLHttpRequest();
+        xmlhttprequest.onreadystatechange=function()
+        {
+            if(this.readyState==4 && this.status==200)
+            {
+                var returnobj=JSON.parse(this.responseText);
+                var message=returnobj['message'];
+                console.log(message);
+                if(message=="successfully logged in")
+                {
+                var accesstoken=returnobj['accesstoken'];
+                console.log(accesstoken);
+
+
+                xmlhttpanother=new XMLHttpRequest();
+                xmlhttpanother.onreadystatechange=function()
+                {
+                    if(this.readyState==4 && this.status==200)
+                    {
+
+                        setCookie("accesstoken",accesstoken,1);
+                        location.replace("http://127.0.0.1:5000/modelview");
+
+                    }
+
+
+
+                };
+                var cookies=document.cookie;
+                var arr=cookies.split("=");
+                token=arr[1];
+                console.log(token);
+                console.log(typeof(token));
+                console.log(accesstoken);
+                xmlhttpanother.open("GET","http://127.0.0.1:5000/model",false);
+                xmlhttpanother.setRequestHeader('Authorization','Bearer '+accesstoken);
+                xmlhttpanother.setRequestHeader('Content-Type','application/json');
+                xmlhttpanother.send();
+                }
+                else
+                {
+                alert(message);
+                }
+
+
+
+
+
+            }
+            //else
+            //alert(this.readyState+" "+this.status);
+            //location.replace("http://127.0.0.1:5000/");
+        };
+
+        obj={"email":email,"password":password};
+
+        xmlhttprequest.open("POST","http://127.0.0.1:5000/login",false);
+        xmlhttprequest.setRequestHeader('Content-Type','application/json');
+        xmlhttprequest.send(JSON.stringify(obj));
+    }
+
+    function setCookie(cname,cvalue,exptime)
+    {
+        var d=new Date();
+        d.setTime(d.getTime()+exptime*60*60*1000);
+        var expiry=d.toUTCString();
+        document.cookie=cname+"="+cvalue+";"+"expires"+expiry+";"+"path=/";
+    }
+    function getCookie(accesstoken)
+    {
+        var allcookies=document.cookie;
+        var splitcookies=allcookies.split(";");
+        for(var i=0;i<splitcookies.length;i++)
+        {
+        var againsplitcookies=splitcookies.split("=");
+        if(againsplitcookies[0]==accesstoken)
+        return true;
+        }
+        return false;
+
+    }
+</script>
+</html>

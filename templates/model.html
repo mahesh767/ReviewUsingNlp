@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Enter the review to get the response</title>
+    <style>
+        #review
+        {
+            height:200px;
+            width: 700px;
+            padding: 8px;
+            margin: 8px;
+            font-size: 18px;
+            font-family: sans-serif;
+
+
+        }
+        .out
+        {
+            margin: auto;
+            left: 0;
+            border: 3px solid black;
+            text-align: center;
+
+        }
+        #userreview
+        {
+            padding: 10px;
+
+        }
+        #result
+        {
+            padding: 10px;
+        }
+        #submit
+        {
+            background:black;
+            padding: 8px;
+            color: white;
+        }
+
+    </style>
+</head>
+<body onload="checkUser()" >
+    <div class="out">
+    <h2 id="reviewsystem">Review System</h2>
+    <textarea id="review" width="400" height="200" placeholder="Enter your review to test the sentiment"></textarea><br>
+    <input id="submit" type="submit" value="submit" onclick="getReview()">
+    <p id="userreview"></p>
+    <p id="result"></p>
+    </div>
+</body>
+<script>
+
+    function getReview()
+    {
+        var review=document.getElementById("review").value;
+
+
+        document.getElementById("review").value="";
+
+        var obj={"review":review};
+       //Imdb dataset
+
+
+        var xmlhttp=new XMLHttpRequest();
+        xmlhttp.onreadystatechange=function()
+        {
+            if(this.readyState==4 && this.status==200)
+            {
+
+                    var responseobject=JSON.parse(this.responseText);
+                    var reviewresult=responseobject['result'];
+                    console.log(reviewresult);
+                    document.getElementById("result").innerHTML=reviewresult;
+                    document.getElementById("userreview").innerHTML=review;
+
+            }
+            else
+            {
+
+            }
+
+        };
+
+
+        xmlhttp.open("POST","http://127.0.0.1:5000/getReview",false);
+        xmlhttp.setRequestHeader("Content-Type","application/json");
+        xmlhttp.send(JSON.stringify(obj));
+
+    }
+    function checkUser()
+    {
+        var token="accesstoken"
+        if(getCookies(token))
+        {
+        }
+        else
+        location.replace("http://127.0.0.1:5000/");
+    }
+    function getCookies(accesstoken)
+    {
+        var token=document.cookie;
+        var splittokens=token.split(";");
+        for(var i=0;i<splittokens.length;i++)
+        {
+        var againsplittokens=splittokens[i].split("=");
+        if(againsplittokens[0]=="accesstoken" && againsplittokens[1]!="")
+        return true;
+        else
+        return false;
+        }
+    }
+
+</script>
+</html>
